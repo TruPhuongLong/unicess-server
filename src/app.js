@@ -1,6 +1,8 @@
 import express from 'express';
-import router from './routes/root-route';
 import bodyParser from 'body-parser';
+import cors from 'cors';
+
+import router from './routes/root-route';
 import './db/mongoose';
 
 const port = process.env.PORT || 2345;
@@ -10,6 +12,7 @@ const app = express();
 
 
 //MIDDLEWARE
+app.use(cors())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(router);

@@ -1,5 +1,6 @@
 import { Order } from '../models/order';
-import {User} from '../models/user';
+import { User } from '../models/user';
+import { transporter, mailOptionsDefault } from '../service/mail.service';
 
 const orderRouter = router => {
     //GET
@@ -13,8 +14,8 @@ const orderRouter = router => {
                 res.status(404).send();
             }
             //find order depend on userEmail:
-            Order.find({userEmail})
-                .sort({createAt: -1})
+            Order.find({ userEmail })
+                .sort({ createAt: -1 })
                 .then(orders => res.send(orders))
                 .catch(error => res.send(error))
         })
@@ -23,7 +24,7 @@ const orderRouter = router => {
     //POST
     router.post('/api/order', (req, res, next) => {
         console.log('=== router - order - post')
-        
+
         const body = req.body;
         console.log(body)
         console.log('test')
@@ -35,16 +36,24 @@ const orderRouter = router => {
         Order.saveUser(user, (error) => {
             if (!error) {
                 //complete save new user if is new, good to save newOrder
-                const {listOrder, priceShip, priceTotal} = body;
-                const order = {listOrder, priceShip, priceTotal, userEmail: user.email, createAt: Date.now()};
+                const { listOrder, priceShip, priceTotal } = body;
+                const order = { listOrder, priceShip, priceTotal, userEmail: user.email, createAt: Date.now() };
                 const newOrder = new Order(order);
                 newOrder.save()
                     .then(_ => res.status(200).send())
                     .catch(error => res.send(error))
-            }else {
+            } else {
                 res.send(error)
             }
         })
+
+
+        transporter.sendMail(mailOptionsDefault, function (err, info) {
+            if (err)
+                console.log(err)
+            else
+                console.log(info);
+        });
     })
 }
 
