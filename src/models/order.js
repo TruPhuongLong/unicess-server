@@ -2,15 +2,19 @@ import mongoose from 'mongoose';
 import { User } from './user';
 
 const OrderSchema = new mongoose.Schema({
-    productId: {
-        type: String,
-        trim: true,
-    },
-    quantity: {
-        type: Number,
-        trim: true,
-        minlength: 1,
-    },
+    listOrder: [
+        {
+            productId: {
+                type: String,
+                trim: true,
+            },
+            quantity: {
+                type: Number,
+                trim: true,
+                minlength: 1,
+            }
+        }
+    ],
     userEmail: {
         type: String,
         trim: true
@@ -19,6 +23,9 @@ const OrderSchema = new mongoose.Schema({
         type: Number
     },
     priceTotal: {
+        type: Number
+    },
+    createAt: {
         type: Number
     }
 });
