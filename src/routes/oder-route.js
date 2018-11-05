@@ -26,6 +26,7 @@ const orderRouter = router => {
         
         const body = req.body;
         console.log(body)
+        console.log('test')
         const user = body.user;
 
         // console.log(user)
