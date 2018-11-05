@@ -33,7 +33,7 @@ const OrderSchema = new mongoose.Schema({
 //save user infomation before save order
 OrderSchema.static('saveUser', function (user, cb) {
     console.log(user)
-    User.findOne({ userEmail: user.userEmail })
+    User.findOne({ email: user.email })
         .then(_user => {
             console.log(_user)
             if(!_user){

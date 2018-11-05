@@ -23,7 +23,9 @@ const orderRouter = router => {
     //POST
     router.post('/api/order', (req, res, next) => {
         console.log('=== router - order - post')
+        
         const body = req.body;
+        console.log(body)
         const user = body.user;
 
         // console.log(user)
