@@ -1,6 +1,9 @@
-import { Product } from '../models/product';
 import { ObjectId } from 'mongodb';
 import multer from 'multer';
+
+import { Product } from '../models/product';
+import { checkAuth, checkAdmin } from '../lib/middlewares/auth.middleware';
+import {UPLOAD_FILE_KEY} from '../lib/contance';
 
 //Setup for save image:
 const storage = multer.diskStorage({
@@ -35,123 +38,23 @@ const upload = multer({
         fileSize: 2000 * 2000 * 5
     },
     fileFilter: fileFilter
-}).array('files');
+}).array(UPLOAD_FILE_KEY);
 
 
 //ROUTE
 const productRouter = router => {
-
-    // //GET /list Products of each user
-    // router.get('/api/Products/listProducts/:userid', (req, res) => {
-    //     const userid = req.params.userid;
-    //     Product.find({ userid })
-    //         .then(Products => res.send(Products))
-    //         .catch(error => res.send(error));
-    // })
-
-    // //GET /list albums of each user
-    // router.get('/api/Products/listalbums/:userid', (req, res) => {
-    //     const userid = req.params.userid;
-    //     Product.find({ userid })
-    //         .then(Products => Products.map(Product => {
-    //             const { imageurls } = Product;
-    //             return imageurls;
-    //         }))
-    //         .then(imageurlses => res.send(imageurlses))
-    //         .catch(error => res.send(error));
-    // })
-
-    // //GET /detal Products 
-    // router.get('/api/Products/:id', (req, res) => {
-    //     const id = req.params.id;
-
-    //     // validate id:
-    //     if (!ObjectId.isValid(id)) {
-    //         const err = new Error();
-    //         err.status = 403;
-    //         err.message = 'invalid Product id'
-    //         res.send(err);
-    //     }
-
-    //     // good to go:
-    //     Product.findById(id)
-    //         .then(Product => res.send(Product))
-    //         .catch(error => res.send(error));
-    // })
-
-    // //Product
-    // router.post('/api/Products',upload , (req, res) => {
-    //     const body = req.body;
-    //     const newProduct = new Product({
-    //         content: body.content,
-    //         createat: Date.now(),
-    //         userid: body.userid,
-    //     })
-    //     if (!ObjectId.isValid(newProduct.userid)) {
-    //         const err = new Error();
-    //         err.status = 403;
-    //         err.message = 'invalid userid'
-    //         res.send(err);
-    //     }
-
-    //     // good to go:
-    //     // save album path:
-    //     if(req.files && req.files.length){
-    //         newProduct.imageurls = req.files.map(file => file.path);
-    //     }
-    //     newProduct.save()
-    //         .then(Product => res.status(200).send(Product))
-    //         .catch(error => res.send(error));
-
-    // })
-
-    // router.patch('/api/Products/:id', (req, res) => {
-    //     const id = req.params.id;
-
-    //     //validate id:
-    //     if (!ObjectId.isValid(id)) {
-    //         res.status(404).send();
-    //     }
-
-    //     // good to go:
-    //     const body = req.body;
-    //     body.editat = Date.now();
-    //     Product.findByIdAndUpdate(id, { $set: body }, { new: true })
-    //         .then(Product => {
-    //             if (!Product) {
-    //                 res.status(404).send();
-    //             }
-    //             res.send(Product);
-    //         })
-    //         .catch(error => res.status(400).send(error));
-    // });
-
-    // router.delete('/api/Products/:id', (req, res) => {
-    //     const id = req.params.id;
-
-    //     //validate id:
-    //     if (!ObjectId.isValid(id)) {
-    //         res.status(404).send();
-    //     }
-
-    //     // good to go:
-    //     Product.findByIdAndRemove(id)
-    //         .then(Product => {
-    //             if (!Product) {
-    //                 res.status(404).send();
-    //             }
-    //             res.status(200).send();
-    //         })
-    //         .catch(error => res.status(400).send(error));
-    // });
 
     //GET products
     router.get('/api/products', (req, res, next) => {
         console.log('=== product - get -')
         Product.find()
             .then(products => {
-                // if(!products.length) next(new Error('empty products'))
-                res.send(products)
+                if (products.length <= 0) {
+                    const err = new Error('products is empty')
+                    res.send(err)
+                } else {
+                    res.send(products)
+                }
             })
             .catch(error => {
                 console.log('=== router - get - products - catch')
@@ -160,11 +63,11 @@ const productRouter = router => {
     })
 
     //POST product
-    router.post('/api/product', upload, (req, res, next) => {
+    router.post('/api/product', checkAuth, checkAdmin, upload, (req, res, next) => {
         console.log('=== product - post -')
-        const body = req.body;
-        console.log(body)
-        const newProduct = new Product(body);
+        const { product } = req.body;
+        console.log(product)
+        const newProduct = new Product(product);
         newProduct.createAt = Date.now();
 
         // save album path:

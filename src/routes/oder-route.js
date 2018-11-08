@@ -6,7 +6,7 @@ const orderRouter = router => {
     //GET
     router.get('api/orders/:userEmail', (req, res, next) => {
         const userEmail = req.params.userEmail;
-        User.authenticate(userEmail, (err, user) => {
+        User.authenticateOnlyEmail({email: userEmail}, (err, user) => {
             if (err) {
                 res.status(404).send(err);
             }
