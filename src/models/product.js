@@ -23,10 +23,12 @@ const Product = mongoose.model('Product', {
         trim: true,
     }],
     createAt: {
-        type: Number
+        type: Number,
+        default: Date.now()
     },
     editAt: {
-        type: Number
+        type: Number,
+        default: Date.now()
     },
     userId: {
         type: String,

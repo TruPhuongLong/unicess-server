@@ -23,10 +23,12 @@ const OrderSchema = new mongoose.Schema({
         type: Number
     },
     priceTotal: {
-        type: Number
+        type: Number,
+        default: Date.now()
     },
     createAt: {
-        type: Number
+        type: Number,
+        default: Date.now()
     }
 });
 

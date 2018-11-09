@@ -4,7 +4,7 @@ import cors from 'cors';
 
 import router from './routes/root-route';
 import './db/mongoose';
-import {initAdmin} from './lib/initAdmin';
+import {initAdminPrimary} from './lib/initAdminPrimary';
 
 const port = process.env.PORT || 2345;
 
@@ -31,5 +31,5 @@ app.use(function (err, req, res, next) {
 
 app.listen(port, () => {
     console.log(`server listen on port ${port}`)
-    initAdmin();
+    initAdminPrimary();
 })

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import {ObjectId} from 'mongodb';
 import bcrypt from 'bcrypt';
 
 import {ROLES} from '../lib/contance';
@@ -10,9 +11,9 @@ const UserSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    name: {
-        type: String,
-    },
+    // name: {
+    //     type: String,
+    // },
     password: {
         type: String,
     },
@@ -26,23 +27,27 @@ const UserSchema = new mongoose.Schema({
         type: String
     },
     createAt: {
-        type: Number
+        type: Number,
+        default: Date.now()
     },
     editAt: {
-        type: Number
+        type: Number,
+        default: Date.now()
     }
 });
+
 
 // encode password for secret before save to database:
 UserSchema.pre('save', function (next) {
     const user = this;
-    if(user.role !== ROLES.admin) next();
+    if(!user.password) next();
     console.log(`=== encrypt admin password`)
     bcrypt.hash(user.password, 10, function (err, hash) {
         if (err) {
             console.log(`=== UserSchema.pre save have error when encrupt password`)
             return next(err)
         }
+        console.log(`password after bcrypt is: ${hash}`)
         user.password = hash;
         next();
     })
@@ -103,12 +108,6 @@ UserSchema.statics.authenticate = function (userInput, callback) {
         });
 }
 
-
-UserSchema.statics.setDefault = function(userInput) {
-    userInput.createAt = Date.now();
-    userInput.name = userInput.name ? userInput.name : 'unname'
-    return userInput;
-}
 
 const User = mongoose.model('User', UserSchema);
 module.exports = { User };

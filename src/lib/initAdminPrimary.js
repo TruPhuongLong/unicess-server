@@ -1,14 +1,14 @@
 import { User } from '../models/user';
 import { DEFAULT_PASSWORD, ROLES } from './contance';
 
-export const initAdmin = () => {
-    const adminCore = new User({
+export const initAdminPrimary = () => {
+    const adminPrimary = new User({
         name: 'admin',
         email: 'admin@gmail.com',
         password: DEFAULT_PASSWORD,
-        role: ROLES.admin,
+        role: ROLES.admin.primary,
     })
-    adminCore.save()
+    adminPrimary.save()
         .then(_user => {
             const { email, name, role } = _user;
             const user = { email, name, role }

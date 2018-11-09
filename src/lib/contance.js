@@ -3,7 +3,10 @@ const JWT_KEY = "secret key";
 const DEFAULT_PASSWORD = '123456';
 
 const ROLES = {
-    admin: 'admin',
+    admin: {
+        primary: 'primary',
+        secondary: 'secondary'
+    },
     regular: 'regular',
 }
 
