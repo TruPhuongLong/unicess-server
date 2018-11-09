@@ -23,11 +23,11 @@ const Product = mongoose.model('Product', {
     }],
     createAt: {
         type: Number,
-        default: Date.now()
+        default: Date.now
     },
     editAt: {
         type: Number,
-        default: Date.now()
+        default: Date.now
     },
     // this is userId
     postBy: { 

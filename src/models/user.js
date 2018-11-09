@@ -28,11 +28,11 @@ const UserSchema = new mongoose.Schema({
     },
     createAt: {
         type: Number,
-        default: Date.now()
+        default: Date.now
     },
     editAt: {
         type: Number,
-        default: Date.now()
+        default: Date.now
     }
 });
 
