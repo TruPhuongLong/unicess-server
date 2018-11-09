@@ -19,8 +19,7 @@ const Product = mongoose.model('Product', {
         trim: true,
     },
     imageUrls: [{
-        type: String,
-        trim: true,
+        type: String
     }],
     createAt: {
         type: Number,
@@ -30,9 +29,9 @@ const Product = mongoose.model('Product', {
         type: Number,
         default: Date.now()
     },
-    userId: {
-        type: String,
-        trim: true
+    // this is userId
+    postBy: { 
+        type: String
     }
 });
 

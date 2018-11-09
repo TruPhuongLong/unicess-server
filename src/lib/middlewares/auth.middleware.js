@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
-import { JWT_KEY, ROLES } from '../contance';
+import { JWT_KEY, ROLES, HEADER_ACCESS_TOKEN } from '../contance';
 
 const checkAuth = (req, res, next) => {
     try {
-        const token = req.headers['x-access-token'];
+        const token = req.headers[HEADER_ACCESS_TOKEN];
         const decodeToken = jwt.verify(token, JWT_KEY);
         req.userData = decodeToken;
         console.log(`checkAuth success - user is: ${JSON.stringify(req.userData)}`)

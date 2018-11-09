@@ -129,13 +129,13 @@ const userRouter = router => {
         // good to go:
         const { user } = req.body;
 
-        //bcrypt password:
+        // bcrypt password:
         bcrypt.hash(user.password, 10, function (err, hash) {
             if (err) {
                 console.log(`=== UserSchema.pre save have error when encrupt password`)
                 return next(err)
             }
-            User.findByIdAndUpdate(userId, { $set: { password: hash, editAt: Date.now() } }, { new: true })
+            User.findByIdAndUpdate(req.userData._id, { $set: { password: hash, editAt: Date.now() } }, { new: true })
                 .then(user => {
                     if (!user) {
                         res.status(404).send();
@@ -152,31 +152,10 @@ const userRouter = router => {
         const userEmail = req.params.userEmail;
         console.log(userEmail)
 
-        User.find({email: userEmail})
-            .then(user => {
-                if(user.role !== ROLES.admin.secondary){
-                    res.status(400).send(new Error('can not delete this user'))
-                }else{
-                    console.log(`=== find user with role secondary, prepare to delete`)
-                    User.deleteOne({ email: userEmail })
-                    .then(user => {
-                        if (!user) {
-                            res.status(404).send();
-                        }
-                        res.status(200).send();
-                    })
-                    .catch(error => res.status(400).send(error));
-                }
-            })
-            .catch(error => {
-                console.log(`=== user delete - not found email , ${error}`)
-                res.status(404).send(error)
-            })
-
-        User.findOneAndRemove({email: userEmail, role: ROLES.admin.secondary})
+        User.findOneAndRemove({ email: userEmail, role: ROLES.admin.secondary })
             .then(user => res.send(user))
             .catch(error => res.status(404).send(error))
-       
+
     });
 
 

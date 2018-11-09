@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import {ObjectId} from 'mongodb';
+import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 
-import {ROLES} from '../lib/contance';
+import { ROLES } from '../lib/contance';
 
 const UserSchema = new mongoose.Schema({
     email: {
@@ -36,11 +36,9 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-
-// encode password for secret before save to database:
-UserSchema.pre('save', function (next) {
-    const user = this;
-    if(!user.password) next();
+//encrypt password
+function bcryptPassword(user, next) {
+    if (!user.password) next();
     console.log(`=== encrypt admin password`)
     bcrypt.hash(user.password, 10, function (err, hash) {
         if (err) {
@@ -51,12 +49,23 @@ UserSchema.pre('save', function (next) {
         user.password = hash;
         next();
     })
+}
+
+// encode password for secret before save to database:
+UserSchema.pre('save', function (next) {
+    const user = this;
+    bcryptPassword(user, next);
 })
+
+// UserSchema.pre('findByIdAndUpdate', function (next) {
+//     const user = this;
+//     bcryptPassword(user, next);
+// })
 
 //auth regular user: only email
 UserSchema.statics.authenticateOnlyEmail = function (user, cb) {
     console.log('=== authenticateOnlyEmail')
-    User.findOne({email: user.email})
+    User.findOne({ email: user.email })
         .then(user => {
             console.log(`=== authenticateOnlyEmail, user ${user}`)
             return cb(null, user)
@@ -86,7 +95,7 @@ UserSchema.statics.authenticate = function (userInput, callback) {
 
             // correct email then check password:
             bcrypt.compare(userInput.password, user.password, function (err, result) {
-                if(err){
+                if (err) {
                     console.log(`=== authenticate, err compare password`)
                     return callback(err);
                 }
@@ -96,7 +105,7 @@ UserSchema.statics.authenticate = function (userInput, callback) {
                     err.message = 'password incorrect';
                     console.log(`=== authenticate, err incorrect password`)
                     return callback(err);
-                } 
+                }
                 // if(userInput.role !== ROLES.admin){
                 //     const err = new Error('not admin');
                 //     console.log(`=== authenticate, err not admin`)
