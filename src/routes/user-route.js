@@ -5,46 +5,15 @@ import bcrypt from 'bcrypt';
 import { JWT_KEY, ROLES } from '../lib/contance';
 import { User } from '../models/user';
 import { checkAuth, checkAdmin, checkAdminPrimary } from '../lib/middlewares/auth.middleware';
+import UserControler from '../controlers/user-controler';
 
 const userRouter = router => {
 
     //POST / signup: test ok
-    router.post('/api/signup', (req, res) => {
-        console.log('=== route user - post - signup')
-        const { user } = req.body;
-        console.log(user)
-        let newUser = new User(user);
-        newUser.role = ROLES.regular;
-        newUser.save()
-            .then(_user => {
-                const { email, name, role } = _user;
-                const user = { email, name, role }
-                res.send({ user: user });
-            })
-            .catch(error => {
-                res.status(400).send(error);
-            })
-    })
+    router.post('/api/signup', UserControler.signup(ROLES.regular.new))
 
     //POST / login: test ok
-    router.post('/api/login', (req, res) => {
-        const { user } = req.body;
-        User.authenticateOnlyEmail({ email: user.email }, (err, _user) => {
-            console.log(`=== /api/login - run call back`)
-            if (err) {
-                return res.status(400).send(err);
-                console.log(`=== /api/login - err`)
-            }
-            if (!_user) {
-                console.log(`=== /api/login - get user but null`)
-                return res.status(404).send();
-            }
-            const { _id, name, email, role } = _user;
-            const user = { _id, name, email, role };
-            const token = jwt.sign(user, JWT_KEY, { expiresIn: "15d" });
-            res.send({ user, token });
-        })
-    });
+    router.post('/api/login', UserControler.login('regular'));
 
     // // GET /logout
     // app.get('/api/logout', function (req, res, next) {
@@ -80,42 +49,10 @@ const userRouter = router => {
 
     //===============Admin===============
     // POST / login: test ok
-    router.post('/api/admin/login', (req, res) => {
-        const { user } = req.body;
-        console.log(`=== /api/admin/login`)
-        User.authenticate(user, (err, _user) => {
-            if (err) {
-                console.log(`=== /api/admin/login - err`)
-                return res.status(400).send(err);
-            }
-            if (!_user) {
-                return res.status(404).send();
-            }
-            const { _id, name, email, role } = _user;
-            const user = { _id, name, email, role };
-            const token = jwt.sign(user, JWT_KEY, { expiresIn: "15d" });
-            return res.send({ user, token });
-        })
-    });
+    router.post('/api/admin/login', UserControler.login('admin'));
 
     //POST / signup: test ok
-    router.post('/api/admin/signupWithPermit', [checkAuth, checkAdminPrimary], (req, res) => {
-        const { user } = req.body;
-        console.log(`=== add new admin is: ${JSON.stringify(user)}`)
-        let newUser = new User(user);
-        newUser.role = ROLES.admin.secondary;
-        newUser.save()
-            .then(_user => {
-                const { email, name, role } = _user;
-                const user = { email, name, role }
-                console.log(`=== save success new admin`)
-                return res.send({ user });
-            })
-            .catch(error => {
-                console.log(error)
-                res.status(400).send(error);
-            })
-    })
+    router.post('/api/admin/signupWithPermit', [checkAuth, checkAdminPrimary], UserControler.signup(ROLES.admin.secondary));
 
     //PUT change password. /test ok
     router.put('/api/admin/:userId', [checkAuth, checkAdmin], (req, res, next) => {

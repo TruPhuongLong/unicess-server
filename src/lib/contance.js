@@ -7,7 +7,10 @@ const ROLES = {
         primary: 'primary',
         secondary: 'secondary'
     },
-    regular: 'regular',
+    regular: {
+        new: 'new',
+        usually: 'usually',
+    }
 }
 
 const UPLOAD_FILE_KEY = 'files';

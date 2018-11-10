@@ -1,3 +1,15 @@
+// //TEST auth.middleware.js
+// import {checkAuth, checkAdmin, checkAdminPrimary} from '../../src/lib/middlewares/auth.middleware';
+// import {ROLES} from '../../src/lib/contance';
+
+// checkAdmin({userData: {role: ROLES.admin.primary}}, null, () => {
+//     console.log('is admin');
+// })
+
+
+
+
+
 // import {test} from 'tap';
 
 // test('first test fun', (assert) => {

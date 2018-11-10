@@ -14,7 +14,7 @@ const checkAuth = (req, res, next) => {
 }
 
 const checkAdmin = (req, res, next) => {
-    if (req.userData.role === ROLES.admin.primary || req.userData.role === ROLES.admin.secondary) {
+    if (Object.values(ROLES.admin).indexOf(req.userData.role) !== -1) {
         console.log(`=== checkAdmin success - `)
         next();
     } else {

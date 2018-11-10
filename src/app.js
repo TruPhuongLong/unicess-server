@@ -7,20 +7,14 @@ import './db/mongoose';
 import {initAdminPrimary} from './lib/initAdminPrimary';
 
 const port = process.env.PORT || 2345;
-
 const app = express();
-
-
 
 //MIDDLEWARE
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use('/uploads', express.static('uploads'));
-
 app.use(router);
-
-
 
 //Global Error handler:
 app.use(function (err, req, res, next) {

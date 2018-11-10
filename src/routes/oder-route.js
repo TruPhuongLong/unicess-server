@@ -1,6 +1,6 @@
 import { Order } from '../models/order';
 import { User } from '../models/user';
-import { transporter, mailOptionsDefault } from '../service/mail.service';
+import { transporter, mailOptionsDefault } from '../services/mail.service';
 
 const orderRouter = router => {
     //GET

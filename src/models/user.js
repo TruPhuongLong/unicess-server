@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema({
 //encrypt password
 function bcryptPassword(user, next) {
     if (!user.password) next();
-    console.log(`=== encrypt admin password`)
+    console.log(`=== encrypt password`)
     bcrypt.hash(user.password, 10, function (err, hash) {
         if (err) {
             console.log(`=== UserSchema.pre save have error when encrupt password`)
@@ -57,29 +57,10 @@ UserSchema.pre('save', function (next) {
     bcryptPassword(user, next);
 })
 
-// UserSchema.pre('findByIdAndUpdate', function (next) {
-//     const user = this;
-//     bcryptPassword(user, next);
-// })
-
-//auth regular user: only email
-UserSchema.statics.authenticateOnlyEmail = function (user, cb) {
-    console.log('=== authenticateOnlyEmail')
-    User.findOne({ email: user.email })
-        .then(user => {
-            console.log(`=== authenticateOnlyEmail, user ${user}`)
-            return cb(null, user)
-        })
-        .catch(error => {
-            console.log(`=== authenticateOnlyEmail error ${error}`)
-            cb(error)
-        })
-}
-
 
 //authenticate input against database: this func will be call when login
 // UserSchema.statics
-UserSchema.statics.authenticate = function (userInput, callback) {
+UserSchema.statics.authenticate = (role) => (userInput, callback) => {
     User.findOne({ email: userInput.email })
         .exec(function (err, user) {
             if (err) {
@@ -91,6 +72,12 @@ UserSchema.statics.authenticate = function (userInput, callback) {
                 err.message = 'email incorrect';
                 console.log(`=== authenticate, err incorrect email`)
                 return callback(err);
+            }
+
+            //if is regular user, then not need check password
+            if (Object.keys(ROLES).indexOf(role) !== -1) {
+                console.log(`=== authenticate regular user is: ${JSON.stringify(user)}`)
+                return callback(null, user);
             }
 
             // correct email then check password:
@@ -106,12 +93,8 @@ UserSchema.statics.authenticate = function (userInput, callback) {
                     console.log(`=== authenticate, err incorrect password`)
                     return callback(err);
                 }
-                // if(userInput.role !== ROLES.admin){
-                //     const err = new Error('not admin');
-                //     console.log(`=== authenticate, err not admin`)
-                //     return callback(err);
-                // }
-                console.log(`=== authenticate user is: ${JSON.stringify(user)}`)
+                
+                console.log(`=== authenticate admin is: ${JSON.stringify(user)}`)
                 return callback(null, user);
             })
         });
