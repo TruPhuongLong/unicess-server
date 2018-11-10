@@ -1,5 +1,5 @@
 import { Product } from '../models/product';
-import {productQuery} from './product-query';
+import {productQuery, pagination} from './product-query';
 
 //GET list / test ok
 // alow query via: name, price, price_min, price_max, createAt, createAt_min, createAt_max 
@@ -9,11 +9,7 @@ const gets = (req, res, next) => {
     const query = productQuery(req.query)
     // console.log(query)
 
-    console.log(req.query)
-    let skip = parseInt(req.query.skip, 10);
-    skip = skip ? skip : 0;
-    let limit = parseInt(req.query.limit, 10);
-    limit = limit ? limit : 0;
+    const {skip, limit} = pagination(req.query);
     
     Product.find(query)
         .sort({createAt: 'descending'})

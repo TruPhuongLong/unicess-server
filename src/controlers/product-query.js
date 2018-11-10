@@ -1,15 +1,24 @@
-import {PRODUCT_QUERY} from '../lib/contance'
+import {PRODUCT_QUERY, QUERY_SERVICE} from '../lib/contance'
 
 //QUERY:
-export function productQuery(q) {
+export function productQuery(query) {
     const queryObj = {};
 
-    const productNameQueryObj = productNameQuery(q);
-    const productPriceQueryObj = productPriceQuery(q);
-    const productCreateAtQueryObj = productCreateAtQuery(q);
+    const productNameQueryObj = productNameQuery(query);
+    const productPriceQueryObj = productPriceQuery(query);
+    const productCreateAtQueryObj = productCreateAtQuery(query);
 
     Object.assign(queryObj, productNameQueryObj, productPriceQueryObj, productCreateAtQueryObj)
     return queryObj;
+}
+
+//PAGINATION
+export const pagination = (query) => {
+    let skip = parseInt(query.skip, 10);
+    skip = skip ? skip : 0;
+    let limit = parseInt(req.query.limit, 10);
+    limit = limit ? limit : QUERY_SERVICE.defaultPagination; //100
+    return {skip, limit};
 }
 
 function productNameQuery(q){

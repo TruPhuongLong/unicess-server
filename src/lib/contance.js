@@ -17,6 +17,13 @@ const UPLOAD_FILE_KEY = 'files';
 
 const HEADER_ACCESS_TOKEN = 'x-access-token';
 
+//core query:
+const QUERY_SERVICE = {
+    createAt: 'createAt', //'02/03/2017*!*!*03/05/2018 'min*!*!*max
+    separate: '*!*!*',
+    defaultPagination: 100
+}
+
 //Product query:
 const PRODUCT_QUERY = {
     name: 'name', 
@@ -31,5 +38,6 @@ module.exports = {
     ROLES,
     UPLOAD_FILE_KEY,
     HEADER_ACCESS_TOKEN,
-    PRODUCT_QUERY
+    QUERY_SERVICE,
+    PRODUCT_QUERY,
 }

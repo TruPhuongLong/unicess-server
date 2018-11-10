@@ -1,0 +1,1 @@
+console.log('funcHelp.test.js in Models')
