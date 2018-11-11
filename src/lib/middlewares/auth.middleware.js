@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { JWT_KEY, ROLES, HEADER_ACCESS_TOKEN } from '../contance';
+import { JWT_KEY, HEADER_ACCESS_TOKEN } from '../contance';
+import {ROLES} from '../role.contance';
 
 const checkAuth = (req, res, next) => {
     try {

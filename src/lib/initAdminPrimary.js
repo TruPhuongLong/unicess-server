@@ -1,5 +1,12 @@
-import { User } from '../models/user';
-import { DEFAULT_PASSWORD, ROLES } from './contance';
+import {
+    User
+} from '../models/user';
+import {
+    DEFAULT_PASSWORD
+} from './contance';
+import {
+    ROLES
+} from './role.contance';
 
 export const initAdminPrimary = () => {
     const adminPrimary = new User({
@@ -10,8 +17,16 @@ export const initAdminPrimary = () => {
     })
     adminPrimary.save()
         .then(_user => {
-            const { email, name, role } = _user;
-            const user = { email, name, role }
+            const {
+                email,
+                name,
+                role
+            } = _user;
+            const user = {
+                email,
+                name,
+                role
+            }
             console.log(`create admin success, ${JSON.stringify(user)}`)
         })
         .catch(error => {

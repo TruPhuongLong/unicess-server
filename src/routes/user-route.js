@@ -1,10 +1,23 @@
 import jwt from 'jsonwebtoken'
-import { ObjectId } from 'mongodb';
+import {
+    ObjectId
+} from 'mongodb';
 import bcrypt from 'bcrypt';
 
-import { JWT_KEY, ROLES } from '../lib/contance';
-import { User } from '../models/user';
-import { checkAuth, checkAdmin, checkAdminPrimary } from '../lib/middlewares/auth.middleware';
+import {
+    JWT_KEY
+} from '../lib/contance';
+import {
+    ROLES
+} from '../lib/role.contance';
+import {
+    User
+} from '../models/user';
+import {
+    checkAuth,
+    checkAdmin,
+    checkAdminPrimary
+} from '../lib/middlewares/auth.middleware';
 import UserControler from '../controlers/user-controler';
 
 const userRouter = router => {
@@ -64,7 +77,9 @@ const userRouter = router => {
         }
 
         // good to go:
-        const { user } = req.body;
+        const {
+            user
+        } = req.body;
 
         // bcrypt password:
         bcrypt.hash(user.password, 10, function (err, hash) {
@@ -72,7 +87,14 @@ const userRouter = router => {
                 console.log(`=== UserSchema.pre save have error when encrupt password`)
                 return next(err)
             }
-            User.findByIdAndUpdate(req.userData._id, { $set: { password: hash, editAt: Date.now() } }, { new: true })
+            User.findByIdAndUpdate(req.userData._id, {
+                    $set: {
+                        password: hash,
+                        editAt: Date.now()
+                    }
+                }, {
+                    new: true
+                })
                 .then(user => {
                     if (!user) {
                         res.status(404).send();
@@ -89,7 +111,10 @@ const userRouter = router => {
         const userEmail = req.params.userEmail;
         console.log(userEmail)
 
-        User.findOneAndRemove({ email: userEmail, role: ROLES.admin.secondary })
+        User.findOneAndRemove({
+                email: userEmail,
+                role: ROLES.admin.secondary
+            })
             .then(user => res.send(user))
             .catch(error => res.status(404).send(error))
 
@@ -112,4 +137,6 @@ const userRouter = router => {
 
 }
 
-module.exports = { userRouter }
+module.exports = {
+    userRouter
+}

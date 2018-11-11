@@ -1,4 +1,3 @@
-
 const gets = (model, queryValidated) => {
     console.log(`core service gets`)
 
@@ -8,6 +7,4 @@ const gets = (model, queryValidated) => {
         .sort({createAt: 'descending'})
         .skip(skip)
         .limit(limit)
-        .then(docs => docs)
-        .catch(error => error)
 }
