@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { User } from './user';
 
-const OrderSchema = new mongoose.Schema({
+const OrderObject = {
     listOrder: [
         {
             productId: {
@@ -30,7 +30,9 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         default: Date.now
     }
-});
+}
+
+const OrderSchema = new mongoose.Schema(OrderObject);
 
 //save user infomation before save order
 OrderSchema.static('saveUser', function (user, cb) {
@@ -38,9 +40,9 @@ OrderSchema.static('saveUser', function (user, cb) {
     User.findOne({ email: user.email })
         .then(_user => {
             console.log(_user)
-            if(!_user){
+            if (!_user) {
                 createNewUser(user);
-            }else{
+            } else {
                 cb(null)
             }
         }) // user already exists: so not need to save
@@ -59,4 +61,4 @@ OrderSchema.static('saveUser', function (user, cb) {
 })
 
 const Order = mongoose.model('Order', OrderSchema);
-module.exports = { Order }
+module.exports = { OrderObject, OrderSchema, Order }

@@ -1,10 +1,11 @@
 import { Product } from '../models/product';
-import {productQuery, pagination} from './product-query';
+import {queryWithExactKey, queryWithRange, pagination,} from '../services/query.service';
+import {productQuery} from './product-query';
 
 //GET list / test ok
 // alow query via: name, price, price_min, price_max, createAt, createAt_min, createAt_max 
 const gets = (req, res, next) => {
-    console.log(`product controler get`)
+    // console.log(`product controler get`)
 
     const query = productQuery(req.query)
     // console.log(query)

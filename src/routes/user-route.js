@@ -28,6 +28,9 @@ const userRouter = router => {
     //POST / login: test ok
     router.post('/api/login', UserControler.login('regular'));
 
+    //GET /get list regular users
+    router.get('/api/users', [checkAuth, checkAdmin], UserControler.gets('regular'))
+
     // // GET /logout
     // app.get('/api/logout', function (req, res, next) {
     //     if (req.session) {
@@ -42,22 +45,6 @@ const userRouter = router => {
     //     }
     // });
 
-    // //GET /list users
-    // router.get('/api/users', (req, res) => {
-    //     User.find()
-    //         .then(users => {
-    //             return users.map(_user => {
-    //                 const { _id, email, name, role } = _user;
-    //                 return { _id, email, name, role };
-    //             })
-    //         })
-    //         .then(users => {
-    //             res.send(users);
-    //         })
-    //         .catch(error => {
-    //             res.send(error);
-    //         })
-    // })
 
 
     //===============Admin===============
@@ -68,58 +55,13 @@ const userRouter = router => {
     router.post('/api/admin/signupWithPermit', [checkAuth, checkAdminPrimary], UserControler.signup(ROLES.admin.secondary));
 
     //PUT change password. /test ok
-    router.put('/api/admin/:userId', [checkAuth, checkAdmin], (req, res, next) => {
-        const userId = req.params.userId;
-
-        //validate id:
-        if (!ObjectId.isValid(userId)) {
-            res.status(404).send();
-        }
-
-        // good to go:
-        const {
-            user
-        } = req.body;
-
-        // bcrypt password:
-        bcrypt.hash(user.password, 10, function (err, hash) {
-            if (err) {
-                console.log(`=== UserSchema.pre save have error when encrupt password`)
-                return next(err)
-            }
-            User.findByIdAndUpdate(req.userData._id, {
-                    $set: {
-                        password: hash,
-                        editAt: Date.now()
-                    }
-                }, {
-                    new: true
-                })
-                .then(user => {
-                    if (!user) {
-                        res.status(404).send();
-                    }
-                    res.status(200).send();
-                })
-                .catch(error => res.status(400).send(error));
-        })
-    })
+    router.put('/api/admin/:userId', [checkAuth, checkAdmin], UserControler.put)
 
     //DELETE adminSecondary , can't delete adminPrimary, and only adminPrimary can do this: test ok.
-    router.delete('/api/admin/:userEmail', [checkAuth, checkAdminPrimary], (req, res) => {
-        console.log(`=== user delete`)
-        const userEmail = req.params.userEmail;
-        console.log(userEmail)
+    router.delete('/api/admin/:userEmail', [checkAuth, checkAdminPrimary], UserControler.remove);
 
-        User.findOneAndRemove({
-                email: userEmail,
-                role: ROLES.admin.secondary
-            })
-            .then(user => res.send(user))
-            .catch(error => res.status(404).send(error))
-
-    });
-
+    //GET /get list secondary admin users 
+    router.get('/api/admin/users', [checkAuth, checkAdminPrimary], UserControler.gets('admin'))
 
     // // GET /logout
     // router.get('/api/admin/logout', function (req, res, next) {

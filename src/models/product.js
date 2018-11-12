@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const Product = mongoose.model('Product', {
+const ProductObject = {
     name: {
         type: String,
         required: true,
@@ -30,9 +30,13 @@ const Product = mongoose.model('Product', {
         default: Date.now
     },
     // this is userId
-    postBy: { 
+    postBy: {
         type: String
     }
-});
+}
 
-module.exports = {Product}
+const ProductSchema = new mongoose.Schema(ProductObject);
+
+const Product = mongoose.model('Product', ProductSchema);
+
+module.exports = { ProductObject, ProductSchema, Product }

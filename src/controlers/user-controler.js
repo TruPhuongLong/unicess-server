@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+
 
 import {
     User
@@ -41,7 +43,6 @@ const signup = role => (req, res, next) => {
 }
 
 //LOGIN /test ok
-// note: role is string regular or admin, not get from ROLES object.
 const login = (role) => (req, res, next) => {
     const {
         user
@@ -78,8 +79,88 @@ const login = (role) => (req, res, next) => {
     })
 }
 
+//PUT
+const put = (req, res, next) => {
+    const userId = req.params.userId;
+
+    //validate id:
+    if (!ObjectId.isValid(userId)) {
+        res.status(404).send();
+    }
+
+    // good to go:
+    const {
+        user
+    } = req.body;
+
+    // bcrypt password:
+    bcrypt.hash(user.password, 10, function (err, hash) {
+        if (err) {
+            console.log(`=== UserSchema.pre save have error when encrupt password`)
+            return next(err)
+        }
+        //req.userData._id is get from access_token, not get id from req.params.userId !importance
+        User.findByIdAndUpdate(req.userData._id, {
+            $set: {
+                password: hash,
+                editAt: Date.now()
+            }
+        }, {
+                new: true
+            })
+            .then(user => {
+                if (!user) {
+                    res.status(404).send();
+                }
+                res.status(200).send();
+            })
+            .catch(error => res.status(400).send(error));
+    })
+}
+
+//DELETE
+const remove = (req, res, next) => {
+    console.log(`=== user remove`)
+    const userEmail = req.params.userEmail;
+    console.log(userEmail)
+
+    //only admin can remove, and only remove someone with role: ROLES.admin.secondary
+    User.findOneAndRemove({
+        email: userEmail,
+        role: ROLES.admin.secondary
+    })
+        .then(user => res.send(user))
+        .catch(error => res.status(404).send(error))
+}
+
+//GET / test ok.
+const gets = (role) => (req, res, next) => {
+    let query = {}
+    if(role === 'admin'){
+        Object.assign(query, {role: ROLES.admin.secondary});
+    }else{
+        Object.assign(query, {$or: [{role: ROLES.regular.new}, {role: ROLES.regular.usually}]})
+    }
+    User.find(query)
+        .then(users => {
+            console.log(users)
+            return users.map(_user => {
+                const { _id, email, name, role } = _user;
+                return { _id, email, name, role };
+            })
+        })
+        .then(users => {
+            res.send(users);
+        })
+        .catch(error => {
+            res.send(error);
+        })
+}
 
 module.exports = {
     signup,
-    login
+    login,
+    put,
+    remove,
+    gets
 }

@@ -1,12 +1,15 @@
 import {
+  isString, isNumber
+} from 'util';
+import mongoose from 'mongoose';
+
+import {
   QUERY
 } from '../lib/query.contance';
 import {
   getMinMax
 } from '../lib/funcHelp';
-import {
-  isString, isNumber
-} from 'util';
+
 
 
 // test ok
@@ -21,12 +24,9 @@ const pagination_Pure = defaultPagination => query => {
   };
 };
 
-export const pagination = pagination_Pure(QUERY.defaultPagination);
+const pagination = pagination_Pure(QUERY.defaultPagination);
 
-
-
-
-export function validateQuery(query) {
+const validateQuery = (modelSchema) => (query) => {
   //null
   if (!query) return false;
 
@@ -37,8 +37,8 @@ export function validateQuery(query) {
   if (keys.length !== 1) return false;
 
   // key must be in QUERY_CONSTANCE
-  const prop = keys[0]
-  if (!(prop in QUERY)) return false;
+  const key = keys[0]
+  if (!(modelSchema.path(key))) return false;
 
   return true;
 }
@@ -68,22 +68,34 @@ const validateQueryValue_Pure = (separateForRange) => (value) => {
 }
 
 //return like that: const {error, data} = validateQueryValue(..)
-export const validateQueryValue = validateQueryValue_Pure(QUERY.separateForRange)
+const validateQueryValue = validateQueryValue_Pure(QUERY.separateForRange)
 
 
+// only get query single: 'createAt' or 'price'
+// it must check after check validateQuery
+const validateSupportRange = (modelSchema) => (key) => {
+  if (modelSchema.path(key)) {
+    return modelSchema.path(key) instanceof mongoose.Schema.Types.Number;
+  }
+  console.log('key not contain in Schema')
+  return false;
+}
 
 
-
-export const queryWithRange = (query) => {
+// NOte query is object like that: {createAt: 4}, not {createAt: 4, price: 5} !importance
+const queryWithRange = (modelSchema) => (query) => {
   const queryObj = {};
 
   //validate query
-  if (!validateQuery(query)) return queryObj;
+  if (!validateQuery(modelSchema)(query)) return queryObj;
 
   // convert value to string.
   const keys = Object.keys(query);
-  const prop = keys[0]
-  const value = isString(query[prop]) ? query[prop] : query[prop].toString();
+  const key = keys[0]
+  const value = isString(query[key]) ? query[key] : query[key].toString();
+
+  //validate support range:
+  if (!validateSupportRange(modelSchema)(key)) return queryObj;
 
   // validate query value
   // data alway is: number or {min, max} if data != null.
@@ -91,11 +103,11 @@ export const queryWithRange = (query) => {
   if (error) return queryObj;
   if (isNumber(data)) {
     Object.assign(queryObj, {
-      [prop]: data
+      [key]: data
     });
   } else {
     Object.assign(queryObj, {
-      [prop]: {
+      [key]: {
         $gte: data.min,
         $lte: data.max
       }
@@ -103,3 +115,33 @@ export const queryWithRange = (query) => {
   }
   return queryObj;
 }
+
+// export only for test
+const validateKeyInModel = (modelSchema) => (key) => {
+  if (modelSchema.path(key)) return true;
+  return false;
+}
+
+const queryWithExactKey = (modelSchema) => (queries, key) => {
+  const queryObj = {};
+  if (!queries) return queryObj;
+  const value = queries[key];
+  validateKeyInModel(modelSchema)(key) && value && Object.assign(queryObj, { [key]: value });
+  return queryObj;
+}
+
+module.exports = {
+  // for realy use in: User, Product, Order controler.
+  queryWithExactKey,
+  queryWithRange,
+  pagination,
+
+
+  // below only for test.
+  validateKeyInModel,
+  validateSupportRange,
+  validateQueryValue,
+  validateQuery
+}
+
+

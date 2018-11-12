@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
 import bcrypt from 'bcrypt';
 
-import { ROLES } from '../lib/contance';
+import { ROLES } from '../lib/role.contance';
 
-const UserSchema = new mongoose.Schema({
+const UserObject = {
     email: {
         type: String,
         unique: true,
@@ -34,7 +34,9 @@ const UserSchema = new mongoose.Schema({
         type: Number,
         default: Date.now
     }
-});
+}
+
+const UserSchema = new mongoose.Schema(UserObject);
 
 //encrypt password
 function bcryptPassword(user, next) {
@@ -75,7 +77,7 @@ UserSchema.statics.authenticate = (role) => (userInput, callback) => {
             }
 
             //if is regular user, then not need check password
-            if (Object.keys(ROLES).indexOf(role) !== -1) {
+            if (role === 'regular') {
                 console.log(`=== authenticate regular user is: ${JSON.stringify(user)}`)
                 return callback(null, user);
             }
@@ -93,7 +95,7 @@ UserSchema.statics.authenticate = (role) => (userInput, callback) => {
                     console.log(`=== authenticate, err incorrect password`)
                     return callback(err);
                 }
-                
+
                 console.log(`=== authenticate admin is: ${JSON.stringify(user)}`)
                 return callback(null, user);
             })
@@ -102,4 +104,4 @@ UserSchema.statics.authenticate = (role) => (userInput, callback) => {
 
 
 const User = mongoose.model('User', UserSchema);
-module.exports = { User };
+module.exports = { UserObject, UserSchema, User };
