@@ -48,6 +48,7 @@ export function getSingleArrayNumber(...rest) {
     }
 }
 
+//output alway is number if valid, or undefine for invalid
 // can pass arguments like that: 
 // getMinMax(1,2,3)
 // getMinMax([3,4,5])
